@@ -18,8 +18,11 @@ class ZillowSpider(scrapy.Spider):
         #append 'zillow.com' to the links, as they are incomplete
         #print all links
         for link in links:
-            ret = "zillow.com" + link
+            ret = "http://zillow.com" + link
             link = ret
             print link
 
-        
+        #gets the URL for next page by looking for the "next" button
+        next_page = response.xpath('//a[contains(.//text(), \'Next\')]/@href').extract()
+        next_url = "http://zillow.com" + next_page[0]
+        print "next url is located here!", next_url
