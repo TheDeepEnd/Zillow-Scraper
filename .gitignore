@@ -65,4 +65,4 @@ target/
 # pyenv
 .python-version
 
-*.html
+.DS_Store
