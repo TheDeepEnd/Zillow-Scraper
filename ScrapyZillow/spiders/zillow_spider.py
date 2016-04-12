@@ -1,11 +1,20 @@
 import scrapy
 from scrapy.selector import Selector
+from scrapy.contrib.spiders import CrawlSpider, Rule
+from scrapy.contrib.linkextractors import LinkExtractor
 
-class ZillowSpider(scrapy.Spider):
+class ZillowSpider(CrawlSpider):
     name = "zillow"
-    allowed_domains = ["zillow.com"]
+    allowed_domains = ["zillow.com/"]
     start_urls = [
         "http://www.zillow.com/homes/for_sale/Honolulu-HI/"
+    ]
+
+    rules = [
+        Rule(LinkExtractor(
+            allow=['.*']),
+            callback = 'parse',
+            follow=True)
     ]
 
     def parse(self, response):
