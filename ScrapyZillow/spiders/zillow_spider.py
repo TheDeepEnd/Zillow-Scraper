@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.selector import Selector
-from scrapy.contrib.spiders import CrawlSpider, Rule
-from scrapy.contrib.linkextractors import LinkExtractor
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
 
 class ZillowSpider(CrawlSpider):
     name = "zillow"
@@ -29,9 +29,10 @@ class ZillowSpider(CrawlSpider):
         for link in links:
             ret = "http://zillow.com" + link
             link = ret
-            print link
+            #print link
 
         #gets the URL for next page by looking for the "next" button
         next_page = response.xpath('//a[contains(.//text(), \'Next\')]/@href').extract()
         next_url = "http://zillow.com" + next_page[0]
         print "next url is located here!", next_url
+        return next_url
