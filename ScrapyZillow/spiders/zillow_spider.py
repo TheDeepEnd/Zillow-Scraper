@@ -1,38 +1,24 @@
 import scrapy
-from scrapy.selector import Selector
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 
 class ZillowSpider(CrawlSpider):
-    name = "zillow"
-    allowed_domains = ["zillow.com/"]
-    start_urls = [
-        "http://www.zillow.com/homes/for_sale/Honolulu-HI/"
-    ]
+    name = 'zillow'
+    allowed_domains = ['zillow']
+    start_urls = ['http://www.zillow.com/honolulu-hi/']
 
-    rules = [
-        Rule(LinkExtractor(
-            allow=['.*']),
-            callback = 'parse',
-            follow=True)
-    ]
+    rules = (
+        # Extract links matching 'category.php' (but not matching 'subsection.php')
+        # and follow links from them (since no callback means follow=True by default).
+        Rule(LinkExtractor(allow=('category\.php', ), deny=('subsection\.php', ))),
 
-    def parse(self, response):
-        #instantiate selector with body of html page
-        sel = Selector(response)
+        # Extract links matching 'item.php' and parse them with the spider's method parse_item
+        Rule(LinkExtractor(allow=('item\.php', )), callback='parse_item'),
+    )
 
-        #select all links to properties listed on the page
-        links = sel.xpath("//a[contains(@class,'hdp-link routable')]/@href").extract()
-
-        #append 'zillow.com' to the links, as they are incomplete
-        #print all links
-        for link in links:
-            ret = "http://zillow.com" + link
-            link = ret
-            #print link
-
-        #gets the URL for next page by looking for the "next" button
-        next_page = response.xpath('//a[contains(.//text(), \'Next\')]/@href').extract()
-        next_url = "http://zillow.com" + next_page[0]
-        print "next url is located here!", next_url
-        return next_url
+    def parse_item(self, response):
+        item = scrapy.Item()
+        item['id'] = response.xpath('//td[@id="item_id"]/text()').re(r'ID: (\d+)')
+        item['name'] = response.xpath('//td[@id="item_name"]/text()').extract()
+        item['description'] = response.xpath('//td[@id="item_description"]/text()').extract()
+        return item
